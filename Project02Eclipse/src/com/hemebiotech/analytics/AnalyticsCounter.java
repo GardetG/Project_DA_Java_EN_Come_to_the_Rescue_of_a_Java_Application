@@ -1,9 +1,9 @@
 package com.hemebiotech.analytics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnalyticsCounter {
 	private static int headacheCount = 0; // initialize to 0
@@ -12,36 +12,29 @@ public class AnalyticsCounter {
 
 	public static void main(String args[]) throws Exception {
 		// first get input
-
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader("Project02Eclipse/symptoms.txt"));
-			String line = reader.readLine();
-
-			while (line != null) {
-				System.out.println("symptom from file: " + line);
-				if (line.equals("headache")) {
-					headacheCount++;
-				} else if (line.equals("rash")) {
-					rashCount++;
-				} else if (line.equals("dialated pupils")) {
-					pupilCount++;
-				}
-				line = reader.readLine(); // get another symptom
+		ISymptomReader reader = new ReadSymptomDataFromFile("Project02Eclipse/symptoms.txt");
+		List<String> rawSymptomList = reader.GetSymptoms();
+		
+		// Count
+		for (String line : rawSymptomList) {
+			System.out.println("symptom from file: " + line);
+			if (line.equals("headache")) {
+				headacheCount++;
+			} else if (line.equals("rash")) {
+				rashCount++;
+			} else if (line.equals("dialated pupils")) {
+				pupilCount++;
 			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
-		// next generate output
-		try {
-			FileWriter writer = new FileWriter("Project02Eclipse/result.out");
-			writer.write("headache: " + headacheCount + "\n");
-			writer.write("rash: " + rashCount + "\n");
-			writer.write("dialated pupils: " + pupilCount + "\n");
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// Generate output
+		List<String> analyzedSymptomList=new ArrayList<String>();
+		analyzedSymptomList.add("headache: " + headacheCount);
+		analyzedSymptomList.add("rash: " + rashCount);
+		analyzedSymptomList.add("dialated pupils: " + pupilCount);
+		
+		// Write output
+		ISymptomWriter writer = new WriteSymptomDataIntoFile("Project02Eclipse/result.out");
+		writer.PostSymtpoms(analyzedSymptomList);
 	}
 }
