@@ -1,38 +1,62 @@
 package com.hemebiotech.analytics;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
- * Implementation to count symptoms and return a list of strings sort by alphabetical order
- * with the number of occurrences
+ * Implementation to count symptoms and return a list of strings with the number
+ * of occurrences sort by alphabetical order by default or with a custom
+ * comparator.
  *
  */
 public class SymptomCounter implements ISymptomAnalyzer {
+
+	private Comparator<String> orderComparator;
+
+	public SymptomCounter() {
+		orderComparator = Comparator.naturalOrder();
+	}
+
+	/**
+	 * 
+	 * @param customComparator a custom Comparator<String> to sort the symptom list
+	 */
+	public SymptomCounter(Comparator<String> customComparator) {
+		orderComparator = customComparator;
+	}
+
 	@Override
 	public List<String> AnalyzeSymptoms(List<String> rawSymptomList) {
+		// Initialize TreeMap
+		SortedMap<String, Integer> symptomMap = new TreeMap<String, Integer>(orderComparator);
 
-		int headacheCount = 0; // initialize to 0
-		int rashCount = 0; // initialize to 0
-		int pupilCount = 0; // initialize to 0
-
-		// Count
+		// Counting loop
 		for (String line : rawSymptomList) {
-			System.out.println("symptom from file: " + line);
-			if (line.equals("headache")) {
-				headacheCount++;
-			} else if (line.equals("rash")) {
-				rashCount++;
-			} else if (line.equals("dialated pupils")) {
-				pupilCount++;
+			// Ignore the line if it's null, blank or empty
+			if (line == null || line.trim().isEmpty()) {
+				continue;
 			}
+			// Prevent duplicate entries in case of letter case variation
+			line = line.toLowerCase();
+			int numberOfOccurrence = 1;
+			// If the symptoms already present in the map, we add the last value to increase
+			// it by 1
+			if (symptomMap.containsKey(line)) {
+				numberOfOccurrence += symptomMap.get(line);
+			}
+			// Add or update the key
+			symptomMap.put(line, numberOfOccurrence);
 		}
 
-		// Generate output
+		// For each pair in the map we add it to the return list using
+		// 'symptom: occurrences' format
 		List<String> analyzedSymptomList = new ArrayList<String>();
-		analyzedSymptomList.add("headache: " + headacheCount);
-		analyzedSymptomList.add("rash: " + rashCount);
-		analyzedSymptomList.add("dialated pupils: " + pupilCount);
+		symptomMap.forEach((symptom, numberOfOccurrence) -> {
+			analyzedSymptomList.add(symptom + ": " + numberOfOccurrence);
+		});
 		return analyzedSymptomList;
 	}
 
