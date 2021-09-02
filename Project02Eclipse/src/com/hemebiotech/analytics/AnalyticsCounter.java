@@ -1,5 +1,11 @@
 package com.hemebiotech.analytics;
 
+/**
+ * 
+ * Main class of Analytics project
+ *
+ * @see Symptoms
+ */
 public class AnalyticsCounter {
 	final static String inputPath = "Project02Eclipse/symptoms.txt";
 	final static String outputPath = "Project02Eclipse/result.out";

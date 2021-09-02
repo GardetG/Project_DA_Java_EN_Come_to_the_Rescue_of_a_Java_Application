@@ -7,22 +7,27 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * Implementation to count symptoms and return a list of strings with the number
- * of occurrences sort by alphabetical order by default or with a custom
- * comparator.
- *
+ * Implements ISymptomAnalyzer to count symptoms and return a list of strings
+ * with symptoms and their number of occurrences, sorted alphabetically by
+ * default or with a custom comparator
+ * 
+ * @see ISymptomAnalyzer
  */
 public class SymptomCounter implements ISymptomAnalyzer {
 
 	private Comparator<String> orderComparator;
 
+	/**
+	 * Default constructor: Set comparator to sort symptoms alphabetically
+	 */
 	public SymptomCounter() {
 		orderComparator = Comparator.naturalOrder();
 	}
 
 	/**
+	 * Parametric constructor: Set a custom comparator to sort symptoms
 	 * 
-	 * @param customComparator a custom Comparator<String> to sort the symptom list
+	 * @param customComparator a comparator to sort symptoms
 	 */
 	public SymptomCounter(Comparator<String> customComparator) {
 		orderComparator = customComparator;
@@ -33,22 +38,24 @@ public class SymptomCounter implements ISymptomAnalyzer {
 		// Initialize TreeMap
 		SortedMap<String, Integer> symptomMap = new TreeMap<String, Integer>(orderComparator);
 
-		// Counting loop
-		for (String line : rawSymptomList) {
-			// Ignore the line if it's null, blank or empty
-			if (line == null || line.trim().isEmpty()) {
-				continue;
+		if (rawSymptomList != null) {
+			// Counting loop
+			for (String line : rawSymptomList) {
+				// Ignore the line if it's null, blank or empty
+				if (line == null || line.trim().isEmpty()) {
+					continue;
+				}
+				// Prevent duplicate entries in case of letter case variation
+				line = line.toLowerCase();
+				int numberOfOccurrence = 1;
+				// If the symptoms already present in the map, we add the last value to increase
+				// it by 1
+				if (symptomMap.containsKey(line)) {
+					numberOfOccurrence += symptomMap.get(line);
+				}
+				// Add or update the key
+				symptomMap.put(line, numberOfOccurrence);
 			}
-			// Prevent duplicate entries in case of letter case variation
-			line = line.toLowerCase();
-			int numberOfOccurrence = 1;
-			// If the symptoms already present in the map, we add the last value to increase
-			// it by 1
-			if (symptomMap.containsKey(line)) {
-				numberOfOccurrence += symptomMap.get(line);
-			}
-			// Add or update the key
-			symptomMap.put(line, numberOfOccurrence);
 		}
 
 		// For each pair in the map we add it to the return list using
@@ -57,7 +64,7 @@ public class SymptomCounter implements ISymptomAnalyzer {
 		symptomMap.forEach((symptom, numberOfOccurrence) -> {
 			analyzedSymptomList.add(symptom + ": " + numberOfOccurrence);
 		});
+
 		return analyzedSymptomList;
 	}
-
 }
